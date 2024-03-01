@@ -24,7 +24,7 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
             elements = new Maillon<T>(((T)element), null);
         }
         else{
-            placerMaillonDansFile(new Maillon<T>((T) element));
+            placerMaillonDansFile(new Maillon<T>((T)element));
         }
         taille++;
     }
@@ -67,7 +67,8 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     }
 
     /**
-     * Défile l'élément en tête de liste et le retourne
+     *  Defile l'element le plus prioritaire (premier arrivee de la plus grande
+     *  priorite) de cette file de priorite.
      *
      * @return l'élément défilé
      * @throws FileVideException
@@ -85,8 +86,9 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     }
 
     /**
-     * Defile la première instance de T avec une priorite égale à celle passée en paramètre
-     * et la retourne. S'il n'y en a pas dans la file, retourne null.
+     * Defile l'element le plus prioritaire de la priorite donnee en parametre.
+     * Si aucun element de la priorite donnee n'existe dans cette file de priorite,
+     * la methode retourne null et cette file de priorite n'est pas modifiee.
      *
      * @param priorite la priorite de l'element a defiler.
      * @return l'objet defilé ou null
@@ -125,6 +127,7 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
         if(defile != null){
             info = defile.getInfo();
+            taille --;
         }
         else{
             info = null;
@@ -136,7 +139,7 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     /**
      * Trouve le maillon précédent du maillon avec une priorité
      * égale à celle passée en paramètre. Si aucun maillon n'a la priorité recherchée,
-     * alors null est renvoyé. Si il n'y a qu'un maillon dans la chaîne, alors null est
+     * alors null est renvoyé. S'il n'y a qu'un maillon dans la chaîne, alors null est
      * renvoyé puisqu'il ne peut y avoir de précédent.
      *
      * @param priorite priorité du maillon qu'on veut defiler
@@ -165,22 +168,50 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         return m;
     }
 
+    /**
+     * Defile tous les elements de la priorite donnee. Si aucun element de cette
+     * priorite n'existe dans cette file de priorite, celle-ci n'est pas modifiee.
+     * La methode retourne une file de priorite contenant tous les elements
+     * defiles, dans le meme ordre que lorsqu'ils se trouvaient dans cette file
+     * de priorite. Si aucun element n'est defile, la file retournee est vide.
+     *
+     * @param priorite la priorite des elements a defiler de cette file de
+     *                 priorite.
+     * @return une file avec les éléments défilés ou null si aucun n'élément n'avait
+     * la priorité cherchée.
+     * @throws FileVideException
+     */
     @Override
     public IFilePrio<T> defilerTous(int priorite) throws FileVideException {
-        FilePrioChainee<T> file;
+        FilePrioChainee<T> file = new FilePrioChainee<>();
         Maillon<T> precedent;
 
         if(taille == 0){
             throw new FileVideException();
         }
 
-        precedent = trouverMaillonPrecedent(priorite);
+        if(taille == 1 && elements.getInfo().getPriorite() == priorite){
+            file.enfiler(elements.getInfo());
+            elements = null;
+        }
+        else{
+            precedent = trouverMaillonPrecedent(priorite);
 
-        while (precedent.getSuivant().getSuivant() != null){
-
+            if(precedent != null){
+                while (precedent.getSuivant().getSuivant() != null &&
+                        precedent.getSuivant().getSuivant().getInfo().getPriorite() == priorite){
+                    file.enfiler(precedent.getSuivant().getInfo());
+                    precedent.setSuivant(precedent.getSuivant().getSuivant());
+                    taille--;
+                }
+            }
+            else{
+                file = null;
+            }
         }
 
-        return null;
+
+        return file;
     }
 
     @Override
