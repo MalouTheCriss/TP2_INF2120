@@ -228,12 +228,64 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
     @Override
     public boolean contient(T elem) {
-        return false;
+        boolean contient;
+        Maillon<T> m = elements;
+
+        if(taille != 0){
+            while (m.getSuivant() != null && !m.getInfo().equals(elem)){
+                m.setSuivant(m.getSuivant());
+            }
+            if(m.getInfo().equals(elem)){
+                contient = true;
+            }
+            else{
+                contient = false;
+            }
+        }
+        else{
+            contient = false;
+        }
+
+
+        return contient;
     }
 
     @Override
     public void normaliser() {
+        int temp;
+        Maillon<T> m = trouverDernierMaillon();
 
+        if (taille > 1) {
+            for (int i = 0; i < taille; i++) {
+                temp = m.getInfo().getPriorite();
+                do {
+                    m.getInfo().setPriorite(i);
+                    enfiler(m.getInfo());
+                    trouverAvantDernierMaillon().setSuivant(null);
+                }while (m.getInfo().getPriorite() == temp);
+            }
+        }
+    }
+
+    /**
+     * Retourne l'avant dernier maillon ou null si la taille est de moins de deux.
+     *
+     * @return l'avant dernier maillon ou null si la taille est de moins de deux.
+     */
+    private Maillon<T> trouverAvantDernierMaillon() {
+        Maillon<T> m;
+
+        if(taille < 2){
+            m = null;
+        }
+        else{
+            m = elements;
+            while (m.getSuivant().getSuivant() != null){
+                m.setSuivant(m.getSuivant());
+            }
+        }
+
+        return m;
     }
 
     @Override
