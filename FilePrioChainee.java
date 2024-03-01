@@ -173,27 +173,57 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
     @Override
     public int taille(int priorite) {
-        return 0;
+        int taillePrio = 0;
+        Maillon <T> m = trouverPremierMaillon(priorite);
+
+        while (m.getSuivant() != null &&
+                m.getSuivant().getInfo().getPriorite() == priorite){
+            m.setSuivant(m.getSuivant());
+            taillePrio++;
+        }
+
+        return taillePrio;
     }
 
     @Override
     public T premier() throws FileVideException {
-        return null;
+        if (taille == 0){
+            throw new FileVideException();
+        }
+
+        return elements.getInfo();
     }
 
     @Override
     public T premier(int priorite) throws FileVideException {
-        return null;
+        if(taille == 0){
+            throw new FileVideException();
+        }
+
+        return trouverPremierMaillon(priorite).getInfo();
     }
 
     @Override
     public void vider() {
+        elements = null;
+        taille = 0;
 
     }
 
     @Override
     public IFilePrio<T> sousFilePrio(int priorite) {
-        return null;
+        FilePrioChainee<T> file = new FilePrioChainee<T>();
+        Maillon<T> m = trouverPremierMaillon(priorite);
+
+        if(m != null){
+            while (m.getSuivant() != null &&
+                    m.getInfo().getPriorite() == priorite) {
+                file.enfiler(m.getInfo());
+                m.setSuivant(m.getSuivant());
+            }
+        }
+
+        return file;
     }
 
     @Override
