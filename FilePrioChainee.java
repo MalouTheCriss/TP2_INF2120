@@ -96,60 +96,70 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     public T defiler(int priorite) throws FileVideException {
         Maillon<T> precedent;
         Maillon<T> defile;
+        T info;
 
         if (taille == 0){
             throw new FileVideException();
         }
 
-        precedent = trouverMaillonPrecedent(priorite);
+        if(taille == 1 && elements.getInfo().getPriorite() == priorite){
+            defile = elements;
+            elements = null;
+        }
+        else{
+            precedent = trouverMaillonPrecedent(priorite);
 
-        //Le dernier maillon n'a pas la bonne priorité <=> c'est l'avant dernier
-        if(precedent.getInfo().getPriorite() != priorite){
-            //Verif si dernier à la bonne priorité
-            if(precedent.getSuivant().getInfo().getPriorite() == priorite){
+            if(precedent != null){
                 defile = precedent.getSuivant();
-                precedent.setSuivant(null);
+                if(precedent.getSuivant().getSuivant() == null){
+                    precedent.setSuivant(null);
+                }
+                else {
+                    precedent.setSuivant(precedent.getSuivant().getSuivant());
+                }
             }
-            //Si aucun maillon n'a la priorité recherchée
             else {
                 defile = null;
             }
         }
+
+        if(defile != null){
+            info = defile.getInfo();
+        }
         else{
-            defile = precedent.getSuivant();
-            precedent.setSuivant(precedent.getSuivant().getSuivant());
+            info = null;
         }
 
-        return defile.getInfo();
+        return info;
     }
 
     /**
-     * Trouve le maillon precedent du premiere maillon avec une priorité
-     * égale à celle passée en paramètre.
+     * Trouve le maillon précédent du maillon avec une priorité
+     * égale à celle passée en paramètre. Si aucun maillon n'a la priorité recherchée,
+     * alors null est renvoyé. Si il n'y a qu'un maillon dans la chaîne, alors null est
+     * renvoyé puisqu'il ne peut y avoir de précédent.
      *
-     * @param priorite
-     * @return Le maillon précédent
+     * @param priorite priorité du maillon qu'on veut defiler
+     * @return Le maillon précédent le premier avec la priorité passée en paramètre
+     *         ou null s'il n'y a aucun maillon avec cette prioritée.
      */
     private Maillon<T> trouverMaillonPrecedent(int priorite) {
         Maillon<T> m = elements;
 
-        if(taille == 2){
-
+        if(taille == 1 ||
+                (taille == 2 && m.getSuivant().getInfo().getPriorite() != priorite)){
+            m = null;
         }
-
-        if(m.getInfo().getPriorite() != priorite){
-            if(m.getSuivant() != null){
-                while (
-                        m.getSuivant().getInfo().getPriorite() != priorite &&
-                                m.getSuivant().getSuivant() != null) {
-                    m = m.getSuivant();
-
-                }
+        else{
+            while (
+                    m.getSuivant().getInfo().getPriorite() != priorite &&
+                            m.getSuivant().getSuivant() != null) {
+                m = m.getSuivant();
             }
-            else{
+            //Retourner null si aucun maillon n'a la priorité cherchée
+            if(m.getSuivant().getInfo().getPriorite() != priorite){
                 m = null;
             }
-
         }
 
         return m;
@@ -241,6 +251,28 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     @Override
     public IFilePrio<T> copie() {
         return null;
+    }
+
+    /**
+     * Construit une representation sous forme de chaine de caracteres de cette
+     * file de priorite.
+     * @return une representation sous forme de chaine de caracteres de cette
+     *         file de priorite.
+     */
+    @Override
+    public String toString() {
+        String s = "tete [ ";
+        Maillon<T> tmp = elements;
+        if (tmp == null) {
+            s = s + " ] fin";
+        } else {
+            while (tmp != null) {
+                s = s + tmp.getInfo() + ", ";
+                tmp = tmp.getSuivant();
+            }
+            s = s.substring(0, s.length() -2) + " ] fin";
+        }
+        return s;
     }
 
 }
