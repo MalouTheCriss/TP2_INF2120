@@ -1,3 +1,5 @@
+import java.nio.charset.MalformedInputException;
+
 public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
     private Maillon<T> elements;
@@ -27,43 +29,6 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
             placerMaillonDansFile(new Maillon<T>((T)element));
         }
         taille++;
-    }
-
-    /**
-     * Cherche à travers les maillons le prochain dont l'info contient une valeur plus petite que
-     * celle contenue dans l'info du nouveau. Puis, place le nouveau maillon à cet endroit dans la
-     * chaine. Si toutes les infos des maillons ont un ordre de priorité plus grand, alors le nouveau
-     * est ajouté à la fin.
-     *
-     * @param m maillon a placer dans la file
-     */
-    private void placerMaillonDansFile(Maillon<T> m) {
-        Maillon <T> precedent = elements;
-
-
-        while(
-                precedent.getSuivant() != null &&
-                precedent.getSuivant().getInfo().getPriorite() >= m.getInfo().getPriorite()
-        ){
-            precedent = precedent.getSuivant();
-        }
-
-        //Si precedent = dernier maillon
-        if(precedent.getSuivant() == null){
-            //Devient dernier maillon
-            if(precedent.getInfo().getPriorite() >= m.getInfo().getPriorite()){
-                precedent.setSuivant(m);
-            }
-            //Devient avant dernier maillon
-            else {
-                m.setSuivant(precedent);
-            }
-        }
-        //Maillon quelquonque
-        else{
-            m.setSuivant(precedent.getSuivant());
-            precedent.setSuivant(m);
-        }
     }
 
     /**
@@ -137,38 +102,6 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     }
 
     /**
-     * Trouve le maillon précédent du maillon avec une priorité
-     * égale à celle passée en paramètre. Si aucun maillon n'a la priorité recherchée,
-     * alors null est renvoyé. S'il n'y a qu'un maillon dans la chaîne, alors null est
-     * renvoyé puisqu'il ne peut y avoir de précédent.
-     *
-     * @param priorite priorité du maillon qu'on veut defiler
-     * @return Le maillon précédent le premier avec la priorité passée en paramètre
-     *         ou null s'il n'y a aucun maillon avec cette prioritée.
-     */
-    private Maillon<T> trouverMaillonPrecedent(int priorite) {
-        Maillon<T> m = elements;
-
-        if(taille == 1 ||
-                (taille == 2 && m.getSuivant().getInfo().getPriorite() != priorite)){
-            m = null;
-        }
-        else{
-            while (
-                    m.getSuivant().getInfo().getPriorite() != priorite &&
-                            m.getSuivant().getSuivant() != null) {
-                m = m.getSuivant();
-            }
-            //Retourner null si aucun maillon n'a la priorité cherchée
-            if(m.getSuivant().getInfo().getPriorite() != priorite){
-                m = null;
-            }
-        }
-
-        return m;
-    }
-
-    /**
      * Defile tous les elements de la priorite donnee. Si aucun element de cette
      * priorite n'existe dans cette file de priorite, celle-ci n'est pas modifiee.
      * La methode retourne une file de priorite contenant tous les elements
@@ -216,17 +149,26 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
     @Override
     public boolean prioriteExiste(int priorite) {
-        return false;
+        boolean existe;
+
+        if (trouverPremierMaillon(priorite) == null) {
+            existe = false;
+        }
+        else{
+            existe = true;
+        }
+
+        return existe;
     }
 
     @Override
     public boolean estVide() {
-        return false;
+        return taille == 0;
     }
 
     @Override
     public int taille() {
-        return 0;
+        return taille;
     }
 
     @Override
@@ -304,6 +246,126 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
             s = s.substring(0, s.length() -2) + " ] fin";
         }
         return s;
+    }
+
+
+    /**
+     * Trouve le maillon précédent du maillon avec une priorité
+     * égale à celle passée en paramètre. Si aucun maillon n'a la priorité recherchée,
+     * alors null est renvoyé. S'il n'y a qu'un maillon dans la chaîne, alors null est
+     * renvoyé puisqu'il ne peut y avoir de précédent.
+     *
+     * @param priorite priorité du maillon qu'on veut defiler
+     * @return Le maillon précédent le premier avec la priorité passée en paramètre
+     *         ou null s'il n'y a aucun maillon avec cette prioritée.
+     */
+    private Maillon<T> trouverMaillonPrecedent(int priorite) {
+        Maillon<T> m = elements;
+
+        if(taille == 1 ||
+                (taille == 2 && m.getSuivant().getInfo().getPriorite() != priorite)){
+            m = null;
+        }
+        else{
+            while (
+                    m.getSuivant().getInfo().getPriorite() != priorite &&
+                            m.getSuivant().getSuivant() != null) {
+                m = m.getSuivant();
+            }
+            //Retourner null si aucun maillon n'a la priorité cherchée
+            if(m.getSuivant().getInfo().getPriorite() != priorite){
+                m = null;
+            }
+        }
+
+        return m;
+    }
+
+    /**
+     * Cherche à travers les maillons le prochain dont l'info contient une valeur plus petite que
+     * celle contenue dans l'info du nouveau. Puis, place le nouveau maillon à cet endroit dans la
+     * chaine. Si toutes les infos des maillons ont un ordre de priorité plus grand, alors le nouveau
+     * est ajouté à la fin.
+     *
+     * @param m maillon a placer dans la file
+     */
+    private void placerMaillonDansFile(Maillon<T> m) {
+        Maillon <T> precedent;
+
+
+        precedent = trouverDernierMaillon(m.getInfo().getPriorite());
+
+        //Si precedent == dernier maillon
+        if(precedent == null){
+            trouverDernierMaillon().setSuivant(m);
+        }
+        //Maillon quelquonque
+        else{
+            m.setSuivant(precedent.getSuivant());
+            precedent.setSuivant(m);
+        }
+    }
+
+    /**
+     * Retourne le premier maillon avec la priorité demandée ou null si aucun maillon n'a
+     * cette priorité.
+     *
+     * @param priorite priorité recherchée
+     * @return premier maillon avec la priorité passée en paramètre
+     */
+    private Maillon<T> trouverPremierMaillon(int priorite) {
+        Maillon <T> m = elements;
+
+        while(
+                m.getSuivant() != null &&
+                        m.getSuivant().getInfo().getPriorite() > priorite
+        ){
+            m = m.getSuivant();
+        }
+        if(m.getInfo().getPriorite() != priorite){
+            m = null;
+        }
+
+        return m;
+    }
+
+    /**
+     * Retourne le dernier maillon de la chaîne
+     *
+     * @return dernier maillon de la chaîne
+     */
+    private Maillon<T> trouverDernierMaillon() {
+        Maillon <T> m = elements;
+
+        while (m.getSuivant() != null){
+            m.setSuivant(m.getSuivant());
+        }
+
+        return m;
+    }
+
+    /**
+     * Retourne le dernier maillon avec la priorité demandée ou null si aucun maillon n'a
+     * cette priorité.
+     *
+     * @param priorite priorité recherchée
+     * @return dernier maillon avec la priorité passée en paramètre
+     */
+    private Maillon<T> trouverDernierMaillon(int priorite) {
+        Maillon <T> m = elements;
+
+        while(
+                m.getSuivant() != null &&
+                        m.getSuivant().getInfo().getPriorite() >= priorite
+        ){
+            m = m.getSuivant();
+        }
+
+        if(m.getInfo().getPriorite() != priorite){
+            m = null;
+        }
+
+        return m;
     }
 
 }
