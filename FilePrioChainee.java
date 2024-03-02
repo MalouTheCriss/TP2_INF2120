@@ -267,45 +267,44 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         }
     }
 
-    /**
-     * Retourne l'avant dernier maillon ou null si la taille est de moins de deux.
-     *
-     * @return l'avant dernier maillon ou null si la taille est de moins de deux.
-     */
-    private Maillon<T> trouverAvantDernierMaillon() {
-        Maillon<T> m;
-
-        if(taille < 2){
-            m = null;
-        }
-        else{
-            m = elements;
-            while (m.getSuivant().getSuivant() != null){
-                m.setSuivant(m.getSuivant());
-            }
-        }
-
-        return m;
-    }
 
     @Override
     public void eliminerDoublons() {
+        FilePrioChainee temp = new FilePrioChainee();
+
+        for (int i = 0; i < taille; i++) {
+            if(!temp.contient(elements.getInfo())){
+                temp.enfiler(elements.getInfo());
+            }
+            elements.setSuivant(elements.getSuivant());
+        }
+
+        elements = temp.elements;
+        taille = temp.taille;
 
     }
 
     @Override
     public int prioriteMax() throws FileVideException {
-        return 0;
+        return elements.getInfo().getPriorite();
     }
 
     @Override
     public int prioriteMin() throws FileVideException {
-        return 0;
+        return trouverDernierMaillon().getInfo().getPriorite();
     }
 
     @Override
     public IFilePrio<T> copie() {
-        return null;
+        FilePrioChainee<T> nouvelleFile = new FilePrioChainee<T>();
+        Maillon<T> m = elements;
+
+        for (int i = 0; i < taille; i++) {
+            nouvelleFile.enfiler(m.getInfo());
+            m = m.getSuivant();
+        }
+
+        return nouvelleFile;
     }
 
     /**
@@ -450,4 +449,24 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         return m;
     }
 
+    /**
+     * Retourne l'avant dernier maillon ou null si la taille est de moins de deux.
+     *
+     * @return l'avant dernier maillon ou null si la taille est de moins de deux.
+     */
+    private Maillon<T> trouverAvantDernierMaillon() {
+        Maillon<T> m;
+
+        if(taille < 2){
+            m = null;
+        }
+        else{
+            m = elements;
+            while (m.getSuivant().getSuivant() != null){
+                m.setSuivant(m.getSuivant());
+            }
+        }
+
+        return m;
+    }
 }
