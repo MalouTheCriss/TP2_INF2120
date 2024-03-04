@@ -2,6 +2,18 @@ import java.nio.charset.MalformedInputException;
 
 public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
+    /*
+
+    TODO ! : CHANGER LES LOOP AVEC JUSTE P = NULL puisque p = p.getSuivant fini par donner null
+
+
+
+
+
+
+     */
+
+
     private Maillon<T> elements;
     private int taille;
 
