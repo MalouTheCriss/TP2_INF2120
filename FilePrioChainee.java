@@ -90,12 +90,7 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
             if(precedent != null){
                 defile = precedent.getSuivant();
-                if(precedent.getSuivant().getSuivant() == null){
-                    precedent.setSuivant(null);
-                }
-                else {
-                    precedent.setSuivant(precedent.getSuivant().getSuivant());
-                }
+                precedent.setSuivant(precedent.getSuivant().getSuivant());
             }
             else {
                 defile = null;
@@ -143,8 +138,8 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
             precedent = trouverMaillonPrecedent(priorite);
 
             if(precedent != null){
-                while (precedent.getSuivant().getSuivant() != null &&
-                        precedent.getSuivant().getSuivant().getInfo().getPriorite() == priorite){
+                while (precedent.getSuivant() != null &&
+                        precedent.getSuivant().getInfo().getPriorite() == priorite){
                     file.enfiler(precedent.getSuivant().getInfo());
                     precedent.setSuivant(precedent.getSuivant().getSuivant());
                     taille--;
@@ -188,8 +183,8 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         int taillePrio = 0;
         Maillon <T> m = trouverPremierMaillon(priorite);
 
-        while (m.getSuivant() != null &&
-                m.getSuivant().getInfo().getPriorite() == priorite){
+        while (m != null &&
+                m.getInfo().getPriorite() == priorite){
             m.setSuivant(m.getSuivant());
             taillePrio++;
         }
@@ -227,12 +222,10 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         FilePrioChainee<T> file = new FilePrioChainee<T>();
         Maillon<T> m = trouverPremierMaillon(priorite);
 
-        if(m != null){
-            while (m.getSuivant() != null &&
-                    m.getInfo().getPriorite() == priorite) {
-                file.enfiler(m.getInfo());
-                m.setSuivant(m.getSuivant());
-            }
+        while (m != null &&
+                m.getInfo().getPriorite() == priorite) {
+            file.enfiler(m.getInfo());
+            m.setSuivant(m.getSuivant());
         }
 
         return file;
@@ -240,26 +233,13 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
 
     @Override
     public boolean contient(T elem) {
-        boolean contient;
         Maillon<T> m = elements;
 
-        if(taille != 0){
-            while (m.getSuivant() != null && !m.getInfo().equals(elem)){
-                m.setSuivant(m.getSuivant());
-            }
-            if(m.getInfo().equals(elem)){
-                contient = true;
-            }
-            else{
-                contient = false;
-            }
-        }
-        else{
-            contient = false;
+        while (m != null && !m.getInfo().equals(elem)){
+            m.setSuivant(m.getSuivant());
         }
 
-
-        return contient;
+        return m != null;
     }
 
     @Override
@@ -272,8 +252,10 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
                 temp = m.getInfo().getPriorite();
                 do {
                     m.getInfo().setPriorite(i);
-                    enfiler(m.getInfo());
-                    trouverAvantDernierMaillon().setSuivant(null);
+                    //"Enfile" et "defile" le maillon
+                    m.setSuivant(elements);
+                    elements = m;
+                    m = trouverDernierMaillon();
                 }while (m.getInfo().getPriorite() == temp);
             }
         }
@@ -355,18 +337,18 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     private Maillon<T> trouverMaillonPrecedent(int priorite) {
         Maillon<T> m = elements;
 
-        if(taille == 1 ||
-                (taille == 2 && m.getSuivant().getInfo().getPriorite() != priorite)){
+        if(taille == 0){
             m = null;
         }
         else{
             while (
-                    m.getSuivant().getInfo().getPriorite() != priorite &&
-                            m.getSuivant().getSuivant() != null) {
+                    m.getSuivant() != null &&
+                    m.getSuivant().getInfo().getPriorite() != priorite
+                           ) {
                 m = m.getSuivant();
             }
             //Retourner null si aucun maillon n'a la priorité cherchée
-            if(m.getSuivant().getInfo().getPriorite() != priorite){
+            if(m.getSuivant() == null){
                 m = null;
             }
         }
@@ -410,13 +392,10 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         Maillon <T> m = elements;
 
         while(
-                m.getSuivant() != null &&
+                m != null &&
                         m.getSuivant().getInfo().getPriorite() > priorite
         ){
             m = m.getSuivant();
-        }
-        if(m.getInfo().getPriorite() != priorite){
-            m = null;
         }
 
         return m;
@@ -448,14 +427,10 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
         Maillon <T> m = elements;
 
         while(
-                m.getSuivant() != null &&
+                m != null &&
                         m.getSuivant().getInfo().getPriorite() >= priorite
         ){
             m = m.getSuivant();
-        }
-
-        if(m.getInfo().getPriorite() != priorite){
-            m = null;
         }
 
         return m;
