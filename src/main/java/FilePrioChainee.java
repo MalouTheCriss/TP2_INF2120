@@ -414,11 +414,14 @@ public class FilePrioChainee<T extends ITachePrio> implements IFilePrio<T> {
     private Maillon<T> trouverDernierMaillon(int priorite) {
         Maillon <T> m = elements;
 
-        while(
-                m != null &&
-                        m.getSuivant().getInfo().getPriorite() >= priorite
-        ){
-            m = m.getSuivant();
+        if (m != null){
+            while(
+                    m.getSuivant() != null &&
+                            m.getSuivant().getInfo().getPriorite() >= priorite
+            ){
+                m = m.getSuivant();
+            }
+
         }
 
         return m;
