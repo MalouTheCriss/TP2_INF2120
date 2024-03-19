@@ -1,7 +1,7 @@
 
 /**
  * Classe fournissant une implementation de l'interface ITachePrio.
- * Une TachePrio represente une tache quelconque qui possede un description 
+ * Une src.main.java.TachePrio represente une tache quelconque qui possede un description
  * et une priorite.
  * 
  * @author Melanie Lord
@@ -13,20 +13,20 @@ public class TachePrio implements ITachePrio {
    private int priorite;                  //priorite de cette tache
    
    /**
-    * Construit une TachePrio possedant la priorite donnee en parametre.
+    * Construit une src.main.java.TachePrio possedant la priorite donnee en parametre.
     * La description est initialisee a "aucune".
-    * @param priorite la priorite de cette TachePrio.
+    * @param priorite la priorite de cette src.main.java.TachePrio.
     */
    public TachePrio (int priorite) {
       this.priorite = priorite;
    }
    
    /**
-    * Construit une TachePrio avec la priorite et la description donnees.
+    * Construit une src.main.java.TachePrio avec la priorite et la description donnees.
     * Si la description est null ou vide, celle-ci est plutot initialisee a 
     * "aucune".
-    * @param priorite la priorite de cette TachePrio.
-    * @param description la description de cette TachePrio.
+    * @param priorite la priorite de cette src.main.java.TachePrio.
+    * @param description la description de cette src.main.java.TachePrio.
     */
    public TachePrio (int priorite, String description) {
       this.priorite = priorite;
@@ -37,8 +37,8 @@ public class TachePrio implements ITachePrio {
    }
    
    /**
-    * Permet d'obtenir la priorite de cette TachePrio.
-    * @return la priorite de cette TachePrio.
+    * Permet d'obtenir la priorite de cette src.main.java.TachePrio.
+    * @return la priorite de cette src.main.java.TachePrio.
     */
    @Override
    public int getPriorite() {
@@ -46,9 +46,9 @@ public class TachePrio implements ITachePrio {
    }
    
    /**
-    * Permet de modifier la priorite de cette TachePrio par la valeur donnee
+    * Permet de modifier la priorite de cette src.main.java.TachePrio par la valeur donnee
     * en parametre.
-    * @param priorite la nouvelle priorite de cette TachePrio. 
+    * @param priorite la nouvelle priorite de cette src.main.java.TachePrio.
     */
    @Override
    public void setPriorite(int priorite) {
@@ -56,27 +56,27 @@ public class TachePrio implements ITachePrio {
    }
 
    /**
-    * Permet d'obtenir la description de cette TachePrio.
-    * @return la description de cette TachePrio.
+    * Permet d'obtenir la description de cette src.main.java.TachePrio.
+    * @return la description de cette src.main.java.TachePrio.
     */
    public String getDescription() {
       return description;
    }
 
    /**
-    * Permet de modifier la description de cette TachePrio par la valeur donnee
+    * Permet de modifier la description de cette src.main.java.TachePrio par la valeur donnee
     * en parametre.
-    * @param description la nouvelle description de cette TachePrio.
+    * @param description la nouvelle description de cette src.main.java.TachePrio.
     */
    public void setDescription(String description) {
       this.description = description;
    }
    
    /**
-    * Construit une representation de cette TachePrio sous forme de chaine de
+    * Construit une representation de cette src.main.java.TachePrio sous forme de chaine de
     * caracteres. La representation est formee de la description suivie de 
     * la priorite entre parentheses, comme suit : description(priorite).
-    * @return une representation de cette TachePrio sous forme de chaine de
+    * @return une representation de cette src.main.java.TachePrio sous forme de chaine de
     * caracteres.
     */
    @Override
@@ -85,9 +85,9 @@ public class TachePrio implements ITachePrio {
    }
    
    /**
-    * Teste si cette TachePrio est egale a la tachePrio passee en parametre.
-    * @param tachePrio la TachePrio a comparer avec cette TachePrio.
-    * @return true si les deux TachePrio sont egales, false sinon.
+    * Teste si cette src.main.java.TachePrio est egale a la tachePrio passee en parametre.
+    * @param tachePrio la src.main.java.TachePrio a comparer avec cette src.main.java.TachePrio.
+    * @return true si les deux src.main.java.TachePrio sont egales, false sinon.
     */
    @Override
    public boolean equals (Object tachePrio) {

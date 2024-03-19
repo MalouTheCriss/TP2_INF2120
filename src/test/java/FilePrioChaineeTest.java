@@ -12,22 +12,22 @@ class FilePrioChaineeTest {
 
     @Test
     void enfilerNull() {
-        FilePrioChainee<ITachePrio> file = new FilePrioChainee();
+        FilePrioChainee<TachePrio> file = new FilePrioChainee();
         assertThrows(NullPointerException.class, () -> file.enfiler(null));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 5, 10})
     void enfilerN(int nbTaches){
-        FilePrioChainee<ITachePrio> file = creerTaches(nbTaches);
+        FilePrioChainee<TachePrio> file = creerTaches(nbTaches);
         assertEquals(nbTaches, file.taille());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 5, 10})
     void enfilerString (int nbTaches) {
-        ITachePrio[] tab = creerTachesTableau(nbTaches);
-        FilePrioChainee<ITachePrio> file = creerTaches(tab);
+        TachePrio[] tab = creerTachesTableau(nbTaches);
+        FilePrioChainee<TachePrio> file = creerTaches(tab);
 
         assertEquals(tabTachesToString(tab), file.toString());
     }
@@ -35,14 +35,22 @@ class FilePrioChaineeTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 5, 10})
     void enfilerPlusieursString (int nbTaches) {
-        ITachePrio[] tab = creerTachesTableau(nbTaches, 3);
-        FilePrioChainee<ITachePrio> file = creerTaches(tab);
+        TachePrio[] tab = creerTachesTableau(nbTaches, 3);
+        FilePrioChainee<TachePrio> file = creerTaches(tab);
 
         assertEquals(tabTachesToString(tab), file.toString());
     }
 
     @Test
-    void defiler() {
+    void defilerException() {
+        FilePrioChainee<TachePrio> file = new FilePrioChainee<>();
+
+        assertThrows(FileVideException.class, () -> file.defiler());
+    }
+
+    @Test
+    void defiler(){
+
     }
 
     @Test
@@ -110,48 +118,22 @@ class FilePrioChaineeTest {
     }
 
 
-    private FilePrioChainee<ITachePrio> creerTaches(int nbTaches) {
-        FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
+    private FilePrioChainee<TachePrio> creerTaches(int nbTaches) {
+        FilePrioChainee<TachePrio> file = new FilePrioChainee<TachePrio>();
 
         for (int i = 0; i < nbTaches; i++) {
-
-            int prio = i;
-            file.enfiler(new ITachePrio() {
-                int priorite = prio;
-                @Override
-                public int getPriorite() {
-                    return priorite;
-                }
-
-                @Override
-                public void setPriorite(int priorite) {
-                    this.priorite = priorite;
-                }
-            });
+            file.enfiler(new TachePrio(i));
         }
 
         return file;
 
     }
-    private FilePrioChainee<ITachePrio> creerTaches(int nbGroupesDeTaches, int nbTachesParPrio) {
-        FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
+    private FilePrioChainee<TachePrio> creerTaches(int nbGroupesDeTaches, int nbTachesParPrio) {
+        FilePrioChainee<TachePrio> file = new FilePrioChainee<TachePrio>();
 
         for (int i = 0; i < nbGroupesDeTaches; i++) {
-
-            int prio = i;
             for (int j = 0; j < nbTachesParPrio; j++) {
-                file.enfiler(new ITachePrio() {
-                    int priorite = prio;
-                    @Override
-                    public int getPriorite() {
-                        return priorite;
-                    }
-
-                    @Override
-                    public void setPriorite(int priorite) {
-                        this.priorite = priorite;
-                    }
-                });
+                file.enfiler(new TachePrio(i));
             }
         }
 
@@ -159,48 +141,24 @@ class FilePrioChaineeTest {
 
     }
 
-    private ITachePrio[] creerTachesTableau(int nbTaches) {
-        ITachePrio[] tab = new ITachePrio[nbTaches];
+    private TachePrio[] creerTachesTableau(int nbTaches) {
+        TachePrio[] tab = new TachePrio[nbTaches];
 
         for (int i = nbTaches-1; i > -1; i--) {
-
-            int prio = i;
-            tab [tab.length - i - 1] = (new ITachePrio() {
-                int priorite = prio;
-                @Override
-                public int getPriorite() {
-                    return priorite;
-                }
-
-                @Override
-                public void setPriorite(int priorite) {
-                    this.priorite = priorite;
-                }
-            });
+            tab[i] = new TachePrio(i);
         }
 
         return tab;
 
     }
-    private ITachePrio[] creerTachesTableau(int nbGroupesDeTaches, int nbTachesParPrio) {
-        ITachePrio[] tab = new ITachePrio[nbGroupesDeTaches * nbTachesParPrio];
+    private TachePrio[] creerTachesTableau(int nbGroupesDeTaches, int nbTachesParPrio) {
+        TachePrio[] tab = new TachePrio[nbGroupesDeTaches * nbTachesParPrio];
 
         for (int i = nbGroupesDeTaches-1; i > -1 ; i--) {
 
             int prio = i;
             for (int j = nbTachesParPrio-1; j > -1; j--) {
-                tab [tab.length - 1 - (i * nbTachesParPrio + j)] = (new ITachePrio() {
-                    int priorite = prio;
-                    @Override
-                    public int getPriorite() {
-                        return priorite;
-                    }
-
-                    @Override
-                    public void setPriorite(int priorite) {
-                        this.priorite = priorite;
-                    }
-                });
+                tab [tab.length - 1 - (i * nbTachesParPrio + j)] = new TachePrio(i);
             }
         }
 
@@ -208,8 +166,8 @@ class FilePrioChaineeTest {
 
     }
 
-    private FilePrioChainee<ITachePrio> creerTaches(ITachePrio[] tab) {
-        FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
+    private FilePrioChainee<TachePrio> creerTaches(TachePrio[] tab) {
+        FilePrioChainee<TachePrio> file = new FilePrioChainee<TachePrio>();
 
         for (int i = 0; i < tab.length; i++) {
 
@@ -221,7 +179,7 @@ class FilePrioChaineeTest {
 
     }
 
-    public String tabTachesToString(ITachePrio[] tab) {
+    public String tabTachesToString(TachePrio[] tab) {
         String s = "tete [ ";
 
         if (tab.length == 0) {
