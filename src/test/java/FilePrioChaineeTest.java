@@ -1,6 +1,10 @@
+import com.sun.xml.internal.fastinfoset.util.CharArray;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,17 +17,29 @@ class FilePrioChaineeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 5, 10})
+    @ValueSource(ints = {0, 1, 2, 5, 10})
     void enfilerN(int nbTaches){
-        FilePrioChainee<ITachePrio> file = creeTachesSimples(nbTaches);
+        FilePrioChainee<ITachePrio> file = creerTaches(nbTaches);
         assertEquals(nbTaches, file.taille());
     }
 
-    @Test
-    void enfilerPrintString () {
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 5, 10})
+    void enfilerString (int nbTaches) {
+        ITachePrio[] tab = creerTachesTableau(nbTaches);
+        FilePrioChainee<ITachePrio> file = creerTaches(tab);
 
+        assertEquals(tabTachesToString(tab), file.toString());
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 5, 10})
+    void enfilerPlusieursString (int nbTaches) {
+        ITachePrio[] tab = creerTachesTableau(nbTaches, 3);
+        FilePrioChainee<ITachePrio> file = creerTaches(tab);
+
+        assertEquals(tabTachesToString(tab), file.toString());
+    }
 
     @Test
     void defiler() {
@@ -94,7 +110,7 @@ class FilePrioChaineeTest {
     }
 
 
-    private FilePrioChainee<ITachePrio> creeTachesSimples (int nbTaches) {
+    private FilePrioChainee<ITachePrio> creerTaches(int nbTaches) {
         FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
 
         for (int i = 0; i < nbTaches; i++) {
@@ -117,7 +133,7 @@ class FilePrioChaineeTest {
         return file;
 
     }
-    private FilePrioChainee<ITachePrio> creeTachesN (int nbGroupesDeTaches, int nbTachesParPrio) {
+    private FilePrioChainee<ITachePrio> creerTaches(int nbGroupesDeTaches, int nbTachesParPrio) {
         FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
 
         for (int i = 0; i < nbGroupesDeTaches; i++) {
@@ -143,13 +159,13 @@ class FilePrioChaineeTest {
 
     }
 
-    private ITachePrio[] creeTachesSimplesTableau (int nbTaches) {
+    private ITachePrio[] creerTachesTableau(int nbTaches) {
         ITachePrio[] tab = new ITachePrio[nbTaches];
 
-        for (int i = 0; i < nbTaches; i++) {
+        for (int i = nbTaches-1; i > -1; i--) {
 
             int prio = i;
-            tab [i] = (new ITachePrio() {
+            tab [tab.length - i - 1] = (new ITachePrio() {
                 int priorite = prio;
                 @Override
                 public int getPriorite() {
@@ -166,14 +182,14 @@ class FilePrioChaineeTest {
         return tab;
 
     }
-    private ITachePrio[] creeTachesNTableau (int nbGroupesDeTaches, int nbTachesParPrio) {
+    private ITachePrio[] creerTachesTableau(int nbGroupesDeTaches, int nbTachesParPrio) {
         ITachePrio[] tab = new ITachePrio[nbGroupesDeTaches * nbTachesParPrio];
 
-        for (int i = 0; i < nbGroupesDeTaches; i++) {
+        for (int i = nbGroupesDeTaches-1; i > -1 ; i--) {
 
             int prio = i;
-            for (int j = 0; j < nbTachesParPrio; j++) {
-                tab [i * nbTachesParPrio + j] = (new ITachePrio() {
+            for (int j = nbTachesParPrio-1; j > -1; j--) {
+                tab [tab.length - 1 - (i * nbTachesParPrio + j)] = (new ITachePrio() {
                     int priorite = prio;
                     @Override
                     public int getPriorite() {
@@ -192,6 +208,34 @@ class FilePrioChaineeTest {
 
     }
 
+    private FilePrioChainee<ITachePrio> creerTaches(ITachePrio[] tab) {
+        FilePrioChainee<ITachePrio> file = new FilePrioChainee<ITachePrio>();
 
+        for (int i = 0; i < tab.length; i++) {
+
+            int prio = i;
+            file.enfiler(tab[i]);
+        }
+
+        return file;
+
+    }
+
+    public String tabTachesToString(ITachePrio[] tab) {
+        String s = "tete [ ";
+
+        if (tab.length == 0) {
+            s = s + " ] fin";
+        }
+        else{
+            for (int i = 0; i < tab.length; i++) {
+                s = s + tab[i] + ", ";
+            }
+
+            s = s.substring(0, s.length() -2) + " ] fin";
+        }
+
+        return s;
+    }
 
 }
