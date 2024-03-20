@@ -1,8 +1,9 @@
-import com.sun.xml.internal.fastinfoset.util.CharArray;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import javax.swing.text.html.HTMLDocument;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
@@ -48,17 +49,121 @@ class FilePrioChaineeTest {
         assertThrows(FileVideException.class, () -> file.defiler());
     }
 
-    @Test
-    void defiler(){
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 5, 10})
+    void defilerDansFile(int nbTaches){
+        TachePrio[] tab = creerTachesTableau(nbTaches);
+        FilePrioChainee file = creerTaches(tab);
+        boolean valid = true;
+        int i = 0;
+
+        while (valid != false && i < file.taille()) {
+            try {
+                if(!tab[i].equals(file.defiler())){
+                    valid = false;
+                }
+            }
+            catch (FileVideException e) {
+
+            }
+        }
+
+        assertTrue(valid);
 
     }
 
     @Test
-    void testDefiler() {
+    void testDefilerPrioFileVideException() {
+        FilePrioChainee<TachePrio> file = new FilePrioChainee<>();
+
+        assertThrows(FileVideException.class, () -> file.defiler());
     }
 
     @Test
-    void defilerTous() {
+    void testPrio() {
+        FilePrioChainee file = new FilePrioChainee();
+        TachePrio[] tab = new TachePrio[9];
+        tab [0] = new TachePrio(0);
+        tab [1] = new TachePrio(0);
+        tab [2] = new TachePrio(1);
+        tab [3] = new TachePrio(1);
+        tab [4] = new TachePrio(1);
+        tab [5] = new TachePrio(2);
+        tab [6] = new TachePrio(2);
+        tab [7] = new TachePrio(2);
+        tab [8] = new TachePrio(2);
+        boolean valid = true;
+
+        for (int i = 0; i < tab.length; i++) {
+            file.enfiler(tab[i]);
+        }
+
+        try {if(!file.defiler(0).equals(tab[0])){valid = false;}}
+        catch (FileVideException e){}
+
+        try {if(!file.defiler(1).equals(tab[2])){valid = false;}}
+        catch (FileVideException e){}
+
+        try {if(!file.defiler(0).equals(tab[1])){valid = false;}}
+        catch (FileVideException e){}
+        try {if(file.defiler(0) != null){valid = false;}}
+        catch (FileVideException e){}
+        try {if(!file.defiler(2).equals(tab[6])){valid = false;}}
+        catch (FileVideException e){}
+        try {if(!file.defiler(2).equals(tab[7])){valid = false;}}
+        catch (FileVideException e){}
+
+        assertTrue(valid);
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 5, 10})
+    void defilerTous(int nbTaches) {
+        TachePrio[] tab = creerTachesTableau(nbTaches, 3);
+        FilePrioChainee file = creerTaches(tab);
+        FilePrioChainee retire = new FilePrioChainee();
+        FilePrioChainee expected = new FilePrioChainee();
+        boolean valid = true;
+
+        if(file.taille() > 3){
+            try {
+                retire = (FilePrioChainee) file.defilerTous(1);
+                expected.enfiler(tab[3]);
+                expected.enfiler(tab[4]);
+                expected.enfiler(tab[5]);
+            }
+            catch (FileVideException e){}
+
+            while (!retire.estVide()) {
+                try {
+                    if (!retire.defiler().equals(expected.defiler())){
+                        valid = false;
+                    }
+                }
+                catch (FileVideException e){
+
+                }
+            }
+        }
+        else if (file.taille() == 3) {
+            try{
+                file.defilerTous(0);
+            }
+            catch (FileVideException e){}
+
+        }
+
+        assertTrue(valid);
+
+    }
+
+    @Test
+    void defilerTousFileVideExcption () {
+        FilePrioChainee file = new FilePrioChainee();
+
+        assertThrows(FileVideException.class, () -> file.defilerTous(0));
+
     }
 
     @Test
@@ -67,6 +172,18 @@ class FilePrioChaineeTest {
 
     @Test
     void estVide() {
+        FilePrioChainee file = new FilePrioChainee();
+
+        assertEquals(file.taille()==0, file.estVide());
+
+
+    }
+    @Test
+    void estPasVide() {
+        FilePrioChainee file = new FilePrioChainee();
+        file.enfiler(new TachePrio(1));
+
+        assertEquals(file.taille()!=0, file.estVide());
     }
 
     @Test
